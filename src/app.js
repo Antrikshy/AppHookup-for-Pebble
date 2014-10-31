@@ -56,7 +56,7 @@ main.on('click', 'select', function(e) {
       body: e.item.subtitle + '\n' + e.item.body,
     });
 
-    if (e.item.title.length > 25 || e.item.body.length > 45)
+    if (e.item.title.length + e.item.body.length > 50)
       appDetails.scrollable(true);
     
     appDetails.show();
@@ -81,61 +81,40 @@ function parseApps(data) {
     
     var postTitle = data.data.children[i].data.title;
     postTitle = postTitle.replace("&amp;", "&");
-    postTitle = postTitle.replace("&lt;", ">");
+    postTitle = postTitle.replace("&lt;", "<");
+    postTitle = postTitle.replace("&gt;", ">");
     
-    var appName = findAppName(postTitle);
-    if (appName === false) continue;
+    var titleArray = splitTitle(postTitle);
+    console.log(titleArray);
     
-    var description = findAppDesc(postTitle);
-    if (description === false) continue;
+    var platform = titleArray[0];
+    var appName = titleArray[1];
+    var priceChange = titleArray[2];
+    var description = titleArray[3];
       
     var user = data.data.children[i].data.author;
-    var platform = postTitle.substring(0, postTitle.indexOf(']') + 1);
     
     items.push({
       title: appName,
       subtitle: platform,
-      body: '/u/' + user + '\n\n' + description
+      body: '/u/' + user + '\n' + priceChange + '\n\n' + description
     });
   }
   
   return items;
 }
 
-function findAppName(title) {
-  var appName;
+// Credit to Thanasis Grammatopoulos from Stack Overflow for this function
+// http://stackoverflow.com/a/26446394/2005759
+function splitTitle(title) {
+  var titleRegex = new RegExp('(\\]\\s*\\[|\\s+\\[|\\]\\s+|\\[|\\])','g'); // Create reg exp (will be used 2 times)
+  var titleArray = title.split(titleRegex); // Split array on every match
   
-  try {
-    if (((title.match(/]/g) || []).length) >= 3)
-      appName = title.match(/\[[^\]]+\]\s*\[*([^\]\[]+)\]*\s*\[[^\]]+\]\s*(\[*[^\]]+\]*)*/)[1].trim();
-    else
-      appName = title.match(/\[[^\]]+\]\s*\[*([^\]\[]+)\]*\s*\[[^\]]+\]\s*(\[*[^\]]+\]*)/)[1].trim();
+  for (var i = titleArray.length-1; i >= 0; i--) { // Remove useless array items
+    // We are making a count down for because we remove items from the array
+    if (titleArray[i].length === 0 || titleArray[i].match(titleRegex))
+      titleArray.splice(i, 1);
   }
   
-  catch (TypeError) {
-    return false;
-  }
-  
-  return appName;
-}
-
-function findAppDesc(title) {
-  var titleArray;
-  var appDesc = "";
-  
-  try {
-    if (((title.match(/]/g) || []).length) >= 3)
-      titleArray = title.match(/\[[^\]]+\]\s*\[*([^\]\[]+)\]*\s*\[[^\]]+\]\s*(\[*[^\]]+\]*)*/);
-    else
-      titleArray = title.match(/\[[^\]]+\]\s*\[*([^\]\[]+)\]*\s*\[[^\]]+\]\s*(\[*[^\]]+\]*)/);
-    
-    if (titleArray.length >= 3)
-      appDesc = titleArray[2].trim();
-  }
-  
-  catch (TypeError) {
-    return appDesc;
-  }
-
-  return appDesc;
+  return titleArray;
 }
