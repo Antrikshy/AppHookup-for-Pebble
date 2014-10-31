@@ -54,10 +54,11 @@ main.on('click', 'select', function(e) {
     var appDetails = new UI.Card({
       title: e.item.title,
       body: e.item.subtitle + '\n' + e.item.body,
+      scrollable: true
     });
 
-    if (e.item.title.length + e.item.body.length > 50)
-      appDetails.scrollable(true);
+//     if (e.item.title.length + e.item.body.length > 50)
+//       appDetails.scrollable(true);
     
     appDetails.show();
   });
@@ -85,12 +86,16 @@ function parseApps(data) {
     postTitle = postTitle.replace("&gt;", ">");
     
     var titleArray = splitTitle(postTitle);
-    console.log(titleArray);
     
     var platform = titleArray[0];
     var appName = titleArray[1];
     var priceChange = titleArray[2];
     var description = titleArray[3];
+    
+    if (description === undefined)
+      description = "";
+    else   
+      description = description + '\n\n';
       
     var user = data.data.children[i].data.author;
     
