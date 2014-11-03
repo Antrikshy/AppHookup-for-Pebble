@@ -1,6 +1,3 @@
-// TODO: Replace all escaped characters
-// TODO: Show price data
-
 var UI = require('ui');
 var ajax = require('ajax');
 var Vibe = require('ui/vibe');
@@ -23,12 +20,12 @@ function getPosts() {
       redditResponse = data;
       ajaxResponseReceived = true;
       
-      console.log('received data');
+      console.log('Received data.');
       Vibe.vibrate('short');
       main.body("Press select to browse.\n\nShake to refresh.");
     },
     function(error) {
-      console.log('error receiving reddit data');  
+      console.log('Error receiving reddit data.');  
       main.body("Could not download posts.\n\nShake to try refreshing again.");
     }
   );
@@ -56,9 +53,6 @@ main.on('click', 'select', function(e) {
       body: e.item.subtitle + '\n' + e.item.body,
       scrollable: true
     });
-
-//     if (e.item.title.length + e.item.body.length > 50)
-//       appDetails.scrollable(true);
     
     appDetails.show();
   });
@@ -70,7 +64,7 @@ main.on('click', 'select', function(e) {
 });
 
 main.on('accelTap', function(e){
-  console.log('shake');
+  console.log('Shake detected.');
   getPosts();
 });
 
