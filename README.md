@@ -34,6 +34,8 @@ If you have a cool idea for an improvement, you can contribute. To test your cha
 
 You don't *have* to contribute in code. You can tweet me any of your ideas or other feedback [@Antrikshy](http://twitter.com/Antrikshy).
 
+*I thank Thanasis Grammatopoulos from Stack Overflow for helping out with the regular expressions in this app. That accounts for just about half of what this app does. [See answer](http://stackoverflow.com/a/26446394/2005759).*
+
 Donate
 ------
 
