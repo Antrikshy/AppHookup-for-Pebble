@@ -1,32 +1,40 @@
 var UI = require('ui');
 var ajax = require('ajax');
 var Vibe = require('ui/vibe');
+var Settings = require('settings');
 
 var redditResponse;
 var ajaxResponseReceived = false;
+var sort = Settings.data('sort');
+if(sort === undefined){
+  console.log('Local settings not found. Setting up...');
+  Settings.data('sort', 'top');
+  sort = 'top';
+} 
 
 var main = new UI.Card({
   title: "/r/AppHookup",
-  body: "Press select to browse.\n\nShake to refresh."
+  subtitle: capitalize(sort)+" posts",
+  body: "Press select to browse.\nPress up to toggle sort.\n\nShake to refresh."
 });
 
 function getPosts() {
-  main.body("Press select to browse.\n\nLoading posts...");
+  main.body("Press select to browse.\nPress up to toggle sort.\n\nLoading posts...");
   ajaxResponseReceived = false;
   redditResponse = null;
   
-  ajax({ url: 'http://www.reddit.com/r/apphookup/new.json?sort=new&limit=35', type: 'json' },
+  ajax({ url: 'http://www.reddit.com/r/apphookup/'+sort+'.json?sort='+sort+'&limit=35', type: 'json' },
     function(data) {
       redditResponse = data;
       ajaxResponseReceived = true;
       
       console.log('Received data.');
       Vibe.vibrate('short');
-      main.body("Press select to browse.\n\nShake to refresh.");
+      main.body("Press select to browse.\nPress up to toggle sort.\n\nShake to refresh.");
     },
     function(error) {
       console.log('Error receiving reddit data.');  
-      main.body("Could not download posts.\n\nShake to try refreshing again.");
+      main.body("Could not download posts.\nPress up to toggle sort.\n\nShake to try refreshing again.");
     }
   );
 }
@@ -40,7 +48,7 @@ main.on('click', 'select', function(e) {
   var appsList = parseApps(redditResponse);
   var appMenu = new UI.Menu({
     sections: [{
-      title: "Newest posts",
+      title: capitalize(sort)+" posts",
       items: appsList
     }]
   });
@@ -61,6 +69,18 @@ main.on('click', 'select', function(e) {
     appMenu.hide();
     getPosts();
   });
+});
+
+main.on('click', 'up', function() {
+  if(sort == 'new'){
+    sort = 'top';
+    Settings.data('sort', 'top');
+  } else {
+    sort = 'new';
+    Settings.data('sort', 'new');
+  }
+  main.subtitle(capitalize(sort)+" posts");
+  getPosts();
 });
 
 main.on('accelTap', function(e){
@@ -116,4 +136,9 @@ function splitTitle(title) {
   }
   
   return titleArray;
+}
+
+function capitalize(s)
+{
+    return s && s[0].toUpperCase() + s.slice(1);
 }
